@@ -58,7 +58,7 @@ if __name__ == "__main__":
         dni="12345678",
         fecha_nacimiento = date(1980, 5, 15),
         edad=43,
-        genero=Genero.MASCULINO,
+        genero=Genero.MASCULINO.name,
     )
 
     conyuge1 = Conyuge(

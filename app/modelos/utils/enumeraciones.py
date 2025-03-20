@@ -6,11 +6,11 @@ from enum import Enum,auto
 class Genero(Enum):
     MASCULINO=auto()
     FEMENINO=auto()
-    OTRO=autod()
+    OTRO=auto()
 
 #opciines de Estado civil
 
-class EstdoCivil(Enum):
+class EstadoCivil(Enum):
     SOLTERO=auto()
     CASADO=auto()
     DIVORCIADO=auto()

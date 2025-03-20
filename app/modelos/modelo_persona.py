@@ -1,18 +1,8 @@
 from dataclasses import dataclass, field
 from datetime import date
 from typing import List, Optional
-from enum import Enum, auto
+from utils.enumeraciones import Genero, EstadoCivil
 
-# Enumeraciones
-class Genero(Enum):
-    MASCULINO=auto()
-    FEMENINO=auto()
-    OTRO=auto()
-
-class EstadoCivil(Enum):
-    SOLTERO=auto()
-    CASADO=auto()
-    DIVORCIADO=auto()
 
 # Clase base Persona
 @dataclass
@@ -22,8 +12,25 @@ class Persona:
     nombre: str
     dni: str
     fecha_nacimiento: date
-    edad: int
+    edad: int = field(init=False)  # No se inicializa en el constructor
     genero: Genero
+
+    def __post_init__(self):
+        # Calcula la edad automáticamente al crear la instancia
+        self.edad = self.calcular_edad()
+
+    def calcular_edad(self) -> int:
+        hoy = date.today()
+        edad = hoy.year - self.fecha_nacimiento.year
+
+        # Verificar si ya cumplió años este año
+        if (hoy.month < self.fecha_nacimiento.month) or (
+            hoy.month == self.fecha_nacimiento.month and hoy.day < self.fecha_nacimiento.day
+        ):
+            edad -= 1  # Aún no ha cumplido años este año
+
+        return edad
+
 
 # Clase PersMayor que hereda de Persona
 @dataclass
@@ -57,7 +64,6 @@ if __name__ == "__main__":
         nombre="Juan",
         dni="12345678",
         fecha_nacimiento = date(1980, 5, 15),
-        edad=43,
         genero=Genero.MASCULINO.name,
     )
 
@@ -67,7 +73,6 @@ if __name__ == "__main__":
         nombre="María",
         dni="87654321",
         fecha_nacimiento=date(1985, 8, 20),
-        edad=38,
         genero=Genero.FEMENINO.name,
     )
 
@@ -77,7 +82,6 @@ if __name__ == "__main__":
         nombre="Carlos",
         dni="13579246",
         fecha_nacimiento=date(2010, 3, 10),
-        edad=13,
         genero=Genero.MASCULINO.name,
     )
 
@@ -86,8 +90,7 @@ if __name__ == "__main__":
         apellido="Pérez",
         nombre="Laura",
         dni="24681357",
-        fecha_nacimiento = date(2012, 7, 25),
-        edad=11,
+        fecha_nacimiento=date(2012, 7, 25),
         genero = Genero.FEMENINO.name,
     )
 
@@ -96,8 +99,7 @@ if __name__ == "__main__":
         apellido="Pérez",
         nombre="Juan",
         dni="12345678",
-        fecha_nacimiento = date(1980, 5, 15),
-        edad = 43,
+        fecha_nacimiento=date(1980, 5, 15),
         genero = Genero.MASCULINO,
         tel_contacto = "+541112345678",
         email = "juan.perez@example.com",
@@ -106,14 +108,17 @@ if __name__ == "__main__":
         hijos=[hijo1, hijo2],
     )
 
+    
     # Mostrar información
     print("Afiliado:")
     print(afiliado1)
-"""
+    
+
     print("\nCónyuge del afiliado:")
     print(afiliado1.conyuge)
 
     print("\nHijos del afiliado:")
     for hijo in afiliado1.hijos:
         print(hijo)
-        """
+    print(type(afiliado1.genero.name))
+        

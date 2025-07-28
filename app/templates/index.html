@@ -1,13 +1,12 @@
-<!doctype html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Inicio</title>
-</head>
-<body>
+{% extends "layout.html" %}
+
+{% block title %}Bienvenido{% endblock %}
+
+{% block body %} 
+
     <h1>Bienvenido, estás autenticado ✅</h1>
     <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
-</body>
-</html>
+
+{% endblock %}
 
 

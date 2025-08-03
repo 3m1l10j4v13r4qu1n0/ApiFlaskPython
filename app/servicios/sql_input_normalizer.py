@@ -1,10 +1,12 @@
-from datetime import datetime
+
 
 from google_sheets_service import data_dict, lista_columnas
 """
 Clase para normalizar los datos de entrada de modelos de SQL
 
 """
+
+
 class SQLInputNormalizer:
  
     def __init__(self, ram_data: dict, columns: list) -> dict:
@@ -16,64 +18,38 @@ class SQLInputNormalizer:
             "hijos": []
         }
 
-    """
-        Normaliza los datos de entrada para que coincidan con las columnas del modelo SQL.
-    """
     def normalize_input(self):
-        for column in self.columns:
-            self.normalize_afiliado(column)
-            self.normalize_conyuge(column)
-            self.normalize_hijos(column)
-            # Agrega otros modelos según sea necesario
+        self.normalize_afiliado()
+        self.normalize_conyuge()
+        self.normalize_hijos()
         return self.models
     
-    def normalize_afiliado(self, column):
-        column = column
-        columna_afiliado = self.columns[0:20]
-        if column in columna_afiliado:
-            self.models["afiliado"][column] = self.ram_data[column]
-        
-    def normalize_conyuge(self, column):
-        column = column
-        columna_conyuge = self.columns[20:24]
-        if column in columna_conyuge:
-            if column == "Nombre y Apellido ( Conyuge ) :":
-                if self.ram_data[column] != 'no_dato':
-                    self.models["conyuge"]["Nombre y Apellido"] = self.ram_data[column]
-        
-            elif column == "Fecha de Nacimiento ( Conyuge ) :":
-                    if self.ram_data[column] != 'no_dato':    
-                        self.models["conyuge"]["Fecha de Nacimiento"] = self.ram_data[column]
-            elif column == "DNI ( Conyuge ) :":
-                if self.ram_data[column] != 'no_dato':
-                    self.models["conyuge"]["DNI"] = self.ram_data[column]
-            
-    
-    def normalize_hijos(self, column):
-        column = column
-        columna_hijos = self.columns[25:-1]
-        if column in columna_hijos:
+    def normalize_afiliado(self):
+        for column in self.columns[0:20]:
+            self.models["afiliado"][column] = self.ram_data.get(column, None)
+
+    def normalize_conyuge(self):
+        mapping = {
+            "Nombre y Apellido ( Conyuge ) :": "Nombre y Apellido",
+            "Fecha de Nacimiento ( Conyuge ) :": "Fecha de Nacimiento",
+            "DNI ( Conyuge ) :": "DNI"
+        }
+        for key, new_key in mapping.items():
+            valor = self.ram_data.get(key, 'no_dato')
+            if valor != 'no_dato':
+                self.models["conyuge"][new_key] = valor
+
+    def normalize_hijos(self):
+        for i in range(1, 8):  # Hijo 1 al 7
             hijo = {
-                "Nombre y Apellido": None,
-                "Fecha de Nacimiento": None,
-                "DNI": None
+                "Nombre y Apellido": self.ram_data.get(f"Apellido/s y Nombre/s  hijo/a {i}", 'no_dato'),
+                "Fecha de Nacimiento": self.ram_data.get(f"Fecha nacimiento hijo/a {i}", 'no_dato'),
+                "DNI": self.ram_data.get(f"D.n.i hijo/a {i}", 'no_dato')
             }
-            # Normaliza los datos de los hijos
-            for i in range(0,7): # Recorre los hijos del 1 al 7
-                # Asigna los valores a los campos correspondientes
-                if column == f"Nombre y Apellido ( Hijo {i+1} ) :":
-                    if self.ram_data[column] != 'no_dato':
-                        hijo["Nombre y Apellido"] = self.ram_data[column]
-                elif column == f"Fecha de Nacimiento ( Hijo {i+1} ) :":
-                    if self.ram_data[column] != 'no_dato':
-                        hijo["Fecha de Nacimiento"] = self.ram_data[column]
-                elif column == f"DNI ( Hijo {i+1} ) :":
-                    if self.ram_data[column] != 'no_dato':
-                        hijo["DNI"] = self.ram_data[column]
-            # Si el hijo tiene datos, lo agrega a la lista de hijos
-            self.models["hijos"].append(hijo)
-                    
-                        
+            # Solo agregamos si al menos un dato no es 'no_dato'
+            if any(v != 'no_dato' for v in hijo.values()):
+                self.models["hijos"].append(hijo)
+                       
             
 
                     
@@ -81,11 +57,21 @@ class SQLInputNormalizer:
             
 
 # Instaciar modelo de normalización
-sql_input_normalizer = SQLInputNormalizer(data_dict[0], lista_columnas)
+#sql_input_normalizer = SQLInputNormalizer(data_dict[0], lista_columnas)
+def normalize_list(lista_data: list, lista_columnas: list) -> list:
+    lista_data = lista_data
+    lista_columnas = lista_columnas
+    lista_normalizada = []
+    for row in range(len(lista_data)):
+        extended_row = SQLInputNormalizer(lista_data[row], lista_columnas)
+        # Crear una fila extendida 
+        lista_normalizada.append(extended_row.normalize_input())
+    return lista_normalizada
+   
 
+    
 if __name__ == "__main__":
     # Ejemplo de uso
     print("Datos normalizados:")
-    #print(sql_input_normalizer.normalize_input())
-    #print(sql_input_normalizer.normalize_input()["conyuge"])
-    print(sql_input_normalizer.normalize_input()["hijos"]) 
+    print(normalize_list(data_dict, lista_columnas)[7])
+    

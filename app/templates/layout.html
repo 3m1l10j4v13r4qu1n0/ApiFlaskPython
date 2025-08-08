@@ -12,12 +12,13 @@
             <a href="{{  url_for('auth.logout') }}">Inicio</a>
             <a href="{{ url_for('auth.register') }}">Registro</a>
             <a href="{{ url_for('auth.login') }}">Cuenta</a>
+            <a href="{{ url_for('crud.listar_afiliados') }}">mostrar afiliados</a>
         </nav>
     </header>
 
-    <main>
-        {% block body %}
-        <!-- Contenido específico de cada página -->
+     <!-- Contenido principal -->
+    <main class="main-content">
+        {% block content %}
         {% endblock %}
     </main>
 

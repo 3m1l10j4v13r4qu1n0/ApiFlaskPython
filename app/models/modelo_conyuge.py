@@ -11,7 +11,7 @@ class Conyuge(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     id_afiliado = db.Column(
-        db.Integer, db.ForeignKey("AFILIADOS.id_afiliado"), nullable=False
+        db.Integer, db.ForeignKey("AFILIADOS.id"), nullable=False
     )
 
     # Atributos del conyuge

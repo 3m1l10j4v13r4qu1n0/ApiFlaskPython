@@ -10,11 +10,10 @@ class Hijo(db.Model):
     __tablename__ = "HIJOS"
     id_hijo = db.Column(db.Integer, primary_key=True)
     id_afiliado = db.Column(
-        db.Integer, db.ForeignKey("AFILIADOS.id_afiliado"), nullable=False
+        db.Integer, db.ForeignKey("AFILIADOS.id"), nullable=False
     )
-    apellido = db.Column(db.String, nullable=False)
-    nombre = db.Column(db.String, nullable=False)
+    nombre_apellido = db.Column(db.String(100), nullable=False)
     fecha_nacimiento = db.Column(db.Date, nullable=False)
-    dni = db.Column(db.String, nullable=False)
+    dni = db.Column(db.String(20), nullable=False)
 
     kits = db.relationship("Kit", backref="hijo", lazy=True)

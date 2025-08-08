@@ -25,9 +25,13 @@ def create_app(config_class=Config):
 
     with app.app_context():
         #from app import routes, models, errors  # Import routes and models
+        # Importá los modelos aquí para que Flask-Migrate los detecte
+        from . import models
         from .routes.main import main as main_blueprint
         from .routes.auth import auth as auth_blueprint
         app.register_blueprint(main_blueprint)
         app.register_blueprint(auth_blueprint)
+        from .routes.crud import crud as crud_blueprint
+        app.register_blueprint(crud_blueprint, url_prefix='/api')
     
     return app

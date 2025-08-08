@@ -31,32 +31,68 @@ class SQLInputNormalizer:
         self.normalize_conyuge()
         self.normalize_hijos()
         return self.models
+    
+    def add_new_key(self, mapping: dict, models_name: str) -> None:
+        """
+        Método para cambiar el nombre de las claves en el diccionario de datos.
 
-    def normalize_afiliado(self):
-        for column in self.columns[0:20]:
-            self.models["afiliado"][column] = self.ram_data.get(column, None)
+        Parameters:
+            mapping(dict): Diccionario que contiene las claves originales y sus nuevos nombres.
+            models_name(str): Nombre del modelo al que se le asignarán los nuevos nombres de claves
 
-    def normalize_conyuge(self):
-        mapping = {
-            "Nombre y Apellido ( Conyuge ) :": "Nombre y Apellido",
-            "Fecha de Nacimiento ( Conyuge ) :": "Fecha de Nacimiento",
-            "DNI ( Conyuge ) :": "DNI",
-        }
+        Returns:
+            None: Modifica el diccionario de datos en la clase directamente.    
+        """
         for key, new_key in mapping.items():
             valor = self.ram_data.get(key, "no_dato")
             if valor != "no_dato":
-                self.models["conyuge"][new_key] = valor
+                self.models[models_name][new_key] = valor
+
+
+    def normalize_afiliado(self):
+        mapping = {
+            "Marca temporal": "marca_temporal_creacion",
+            "Apellido/s:": "apellido",
+            "Nombre/s:": "nombre",
+            "Fecha de Nacimiento:": "fecha_nacimiento",
+            "D.N.I:": "dni",
+            "Tel Contacto:": "telefono",
+            "Email:": "email",
+            "Nacionalidad:": "nacionalidad",
+            "Género:": "genero",
+            "Estado Civil:": "estado_civil",
+            "Domicilio (Calle y n°):": "direccion",
+            "Localidad:": "localidad",
+            "Provincia:": "provincia",
+            "Codigo Postal:": "codigo_postal",
+            "Estudios:": "nivel_educativo",
+            "Titulo / Carrera:": "titulo_obtenid",
+            "N° De Legajo:": "numero_legajo",
+            "Comuna del sendero donde trabaja:": "comuna_donde_trabaja",
+            "Inicio Actividad en Prevención:": "fecha_ingreso",
+            "Relación de Dependencia:": "relacion_dependencia",
+            }
+        self.add_new_key(mapping, "afiliado")
+
+
+    def normalize_conyuge(self):
+        mapping = {
+            "Nombre y Apellido ( Conyuge ) :": "nombre_apellido",
+            "Fecha de Nacimiento ( Conyuge ) :": "fecha_nacimiento",
+            "DNI ( Conyuge ) :": "dni",
+        }
+        self.add_new_key(mapping, "conyuge")
 
     def normalize_hijos(self):
         for i in range(1, 8):  # Hijo 1 al 7
             hijo = {
-                "Nombre y Apellido": self.ram_data.get(
+                "nombre_apellido": self.ram_data.get(
                     f"Apellido/s y Nombre/s  hijo/a {i}", "no_dato"
                 ),
-                "Fecha de Nacimiento": self.ram_data.get(
+                "fecha_nacimiento": self.ram_data.get(
                     f"Fecha nacimiento hijo/a {i}", "no_dato"
                 ),
-                "DNI": self.ram_data.get(f"D.n.i hijo/a {i}", "no_dato"),
+                "dni": self.ram_data.get(f"D.n.i hijo/a {i}", "no_dato"),
             }
             # Solo agregamos si al menos un dato no es 'no_dato'
             if any(v != "no_dato" for v in hijo.values()):

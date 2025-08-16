@@ -1,6 +1,3 @@
-from google_sheets_service import data_dict, lista_columnas
-
-
 class SQLInputNormalizer:
     """
     Clase para normalizar los datos de entrada de modelos de SQL.
@@ -66,7 +63,7 @@ class SQLInputNormalizer:
             "Provincia:": "provincia",
             "Codigo Postal:": "codigo_postal",
             "Estudios:": "nivel_educativo",
-            "Titulo / Carrera:": "titulo_obtenid",
+            "Titulo / Carrera:": "titulo_obtenido",
             "N° De Legajo:": "numero_legajo",
             "Comuna del sendero donde trabaja:": "comuna_donde_trabaja",
             "Inicio Actividad en Prevención:": "fecha_ingreso",
@@ -99,33 +96,45 @@ class SQLInputNormalizer:
                 self.models["hijos"].append(hijo)
 
 
-def normalize_list(lista_data: list, lista_columnas: list) -> list:
+
+class FactiorySQLInputNormalizer:
     """
-    Función para normalizar una lista de datos.
+    Clase FactiorySQLInputNormalizer -> devuelve una lista con Diccionarios con 
+    los datos normalizados de la hoja de google.
 
     Parameters:
-        lista_data(list): Lista de datos a normalizar.
-        lista_columnas(list): Lista de columnas esperadas en el modelo SQL.
+        data(list) lista de los datos de la hoja de google
+        columns(lista) lista de las columnas.
 
     Methods:
-        normalize_input(): Normaliza los datos de entrada del modelo SQL.
+        to_dict() Convierte los datos a una lista de diccionario.
 
     Returns:
-        lista_normalizada(list): Lista de datos normalizados.
+        retorna una lista de diccionarios de los datos normalizados.
+
     """
-    lista_data = lista_data
-    lista_columnas = lista_columnas
-    lista_normalizada = []
 
-    for row in range(len(lista_data)):
-        extended_row = SQLInputNormalizer(lista_data[row], lista_columnas)
-        # Crear una fila extendida
-        lista_normalizada.append(extended_row.normalize_input())
+    def __init__(self,lista_data: list, lista_columnas: list) -> list:
+        self.data = lista_data
+        self.columns = lista_columnas
+        self.convertir_a_lista = self.normalize_list()
 
-    return lista_normalizada
+    def __repr__(self):
+        return f"{self.convertir_a_lista}"
 
+    def normalize_list(self) -> list:
+        lista_normalizada = []
+
+        for row in range(len(self.data)):
+            # Crear una instancia de SQLInputNormalizer para cada fila
+            extended_row = SQLInputNormalizer(self.data[row], self.columns)
+            # Crear una fila extendida
+            lista_normalizada.append(extended_row.normalize_input())
+
+        return lista_normalizada
 
 if __name__ == "__main__":
     # Ejemplo de uso
     print("Datos normalizados:")
-    print(normalize_list(data_dict, lista_columnas))
+    
+   

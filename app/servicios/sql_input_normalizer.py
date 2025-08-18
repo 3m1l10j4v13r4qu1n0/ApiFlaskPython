@@ -71,7 +71,6 @@ class SQLInputNormalizer:
             }
         self.add_new_key(mapping, "afiliado")
 
-
     def normalize_conyuge(self):
         mapping = {
             "Nombre y Apellido ( Conyuge ) :": "nombre_apellido",
@@ -95,46 +94,5 @@ class SQLInputNormalizer:
             if any(v != "no_dato" for v in hijo.values()):
                 self.models["hijos"].append(hijo)
 
+            
 
-
-class FactiorySQLInputNormalizer:
-    """
-    Clase FactiorySQLInputNormalizer -> devuelve una lista con Diccionarios con 
-    los datos normalizados de la hoja de google.
-
-    Parameters:
-        data(list) lista de los datos de la hoja de google
-        columns(lista) lista de las columnas.
-
-    Methods:
-        to_dict() Convierte los datos a una lista de diccionario.
-
-    Returns:
-        retorna una lista de diccionarios de los datos normalizados.
-
-    """
-
-    def __init__(self,lista_data: list, lista_columnas: list) -> list:
-        self.data = lista_data
-        self.columns = lista_columnas
-        self.convertir_a_lista = self.normalize_list()
-
-    def __repr__(self):
-        return f"{self.convertir_a_lista}"
-
-    def normalize_list(self) -> list:
-        lista_normalizada = []
-
-        for row in range(len(self.data)):
-            # Crear una instancia de SQLInputNormalizer para cada fila
-            extended_row = SQLInputNormalizer(self.data[row], self.columns)
-            # Crear una fila extendida
-            lista_normalizada.append(extended_row.normalize_input())
-
-        return lista_normalizada
-
-if __name__ == "__main__":
-    # Ejemplo de uso
-    print("Datos normalizados:")
-    
-   

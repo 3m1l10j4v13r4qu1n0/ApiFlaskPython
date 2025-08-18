@@ -5,6 +5,8 @@ from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 from typing import List, Dict, Any, Optional
 from functools import wraps
+from .sql_input_normalizer import SQLInputNormalizer
+
 # Configuración
 
 # Cargar variables de entorno desde el archivo .env
@@ -153,7 +155,6 @@ class FactoryGoogleSheetsService:
         self.normalize_data = self.normalize_empty_cells(num_columns=len(self.data[0]))
         if not self.normalize_data:
             raise ValueError("No se encontraron datos en la hoja de calculo normalizados.")
-        self.convertir_a_lista = ConvertirALista(self.normalize_data).list_dict
 
     # Crear instancia del cliente
     @property
@@ -192,7 +193,7 @@ class FactoryGoogleSheetsService:
             return []
         return self.sheets_client.read_range(range_name)
 
-    def normalize_empty_cells(self, num_columns: list)-> list:
+    def normalize_empty_cells(self, num_columns: int)-> list:
     
         normalized_rows = []
         for row in self.data:
@@ -206,8 +207,45 @@ class FactoryGoogleSheetsService:
             ]
         return normalized_rows
     
+    def convertir_a_lista(self) -> List[Dict[str, Any]]:
+        """
+        Convierte los datos normalizados a una lista de diccionarios.
+        
+        Returns:
+            List[Dict[str, Any]]: Lista de diccionarios con los datos normalizados.
+        """
+        lista = []
+        # Convertir los datos a una lista de diccionarios
+        sin_primera_fila = self.normalize_data[1:] if len(self.normalize_data) > 1 else []
+        if not sin_primera_fila:
+            raise ValueError("No se encontraron datos en la hoja de calculo normalizados.")
+        # Convertir los datos a una lista de diccionarios
+        for i in range(len(sin_primera_fila)):
+            # Crear una instancia de ConvertirALista para cada fila
+            d = ConvertirALista(raw_data=sin_primera_fila,columns=self.data[0]).to_dict(iterador=i)
+            lista.append(d)
+        return lista
+    
+    def normalizer_list(self) -> List[Dict[str, Any]]:
+        """ 
+        Normaliza la lista de diccionarios obtenidos de la hoja de cálculo. 
+        Returns:
+            List[Dict[str, Any]]: Lista de diccionarios normalizados.
+        """
+
+        lista = self.convertir_a_lista()
+        lista_normalizada = []
+
+        for row in range(len(lista)):
+            # Crear una instancia de SQLInputNormalizer para cada fila
+            extended_row = SQLInputNormalizer(ram_data=lista[row], columns=self.data[0])
+            # Normalizar la entrada
+            lista_normalizada.append(extended_row.normalize_input())
+
+        return lista_normalizada
+    
     def __repr__(self):
-        return f"{self.convertir_a_lista}"
+        return f"{self.normalizer_list()}"
     
 
 
@@ -218,7 +256,7 @@ class ConvertirALista:
     los datos de la hoja de google.
 
     Parameters:
-        data(list) lista de los datos de la hoja de google
+        raw_data(list) lista de los datos de la hoja de google
         columns(lista) lista de las columnas.
 
     Methods:
@@ -229,20 +267,18 @@ class ConvertirALista:
     
     """
 
-    def __init__(self, data:list) -> list:
-        self.raw_data = data
-        self.columns = self.raw_data[0] if self.raw_data else []
-        self.data = self.raw_data[1:] if len(self.raw_data) > 1 else []
-        self.list_dict = self.to_list()
-    
+    def __init__(self, raw_data:list, columns) -> list:
+        self.raw_data = raw_data
+        self.columns = columns
+       
     def to_dict(self, iterador: int):
-        if len(self.data[iterador]) != len(self.columns):
+        if len(self.raw_data[iterador]) != len(self.columns):
             raise ValueError("las lista deben terner la misma longitud")
-        return dict(zip(self.columns,self.data[iterador])) 
+        return dict(zip(self.columns,self.raw_data[iterador])) 
     
     def to_list(self):
         lista = []
-        for i in range(len(self.data)):
+        for i in range(len(self.raw_data)):
             d = self.to_dict(iterador=i)
             lista.append(d)
         return lista
@@ -251,12 +287,5 @@ class ConvertirALista:
         
 if __name__ == "__main__":
     print("Datos obtenidos de Google Sheets:")
-    # Instanciar el servicio de Google Sheets
-    # Crear una instancia del servicio
-    google_sheets_service = FactoryGoogleSheetsService()
-    # Imprimir los datos obtenidos
-    #print(google_sheets_service.convertir_a_lista[0])
-    # Imprimir la representación de la instancia
-    print(google_sheets_service.convertir_a_lista[0].keys()[0])
-    
+    lista_afiliados = FactoryGoogleSheetsService().normalizer_list()
     

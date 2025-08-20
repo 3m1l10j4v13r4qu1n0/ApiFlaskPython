@@ -33,5 +33,8 @@ def create_app(config_class=Config):
         app.register_blueprint(auth_blueprint)
         from .routes.crud import crud as crud_blueprint
         app.register_blueprint(crud_blueprint, url_prefix='/api')
+        from .api.routes_afiliados import afiliados_bp as afiliados_blueprint
+        app.register_blueprint(afiliados_blueprint)
+
     
     return app

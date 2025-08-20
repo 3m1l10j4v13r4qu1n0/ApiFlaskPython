@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 #from ..servicios.google_sheets_service import FactoryGoogleSheetsService
-from ..servicios.sql_input_normalizer import lista_afiliados
 
 # asignar un nombre al blueprint
 crud = Blueprint('crud', __name__)
@@ -8,7 +7,7 @@ crud = Blueprint('crud', __name__)
 @crud.route('/afiliados' , methods=['GET'])
 def listar_afiliados():
     # Lógica para listar afiliados
-    listar_afiliados
+    pass
     
     return render_template('afiliados/listar.html')
 

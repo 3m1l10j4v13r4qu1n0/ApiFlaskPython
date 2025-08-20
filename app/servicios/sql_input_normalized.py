@@ -1,10 +1,9 @@
-class SQLInputNormalizer:
+class SQLInputNormalized:
     """
     Clase para normalizar los datos de entrada de modelos de SQL.
 
     Parameters:
         ram_data(dict): Datos de entrada del modelo SQL.
-        columns(list): Lista de columnas esperadas en el modelo SQL.
 
     Methods:
         normalize_input(): Normaliza los datos de entrada del modelo SQL.
@@ -18,16 +17,15 @@ class SQLInputNormalizer:
 
     """
 
-    def __init__(self, ram_data: dict, columns: list) -> dict:
+    def __init__(self, ram_data: dict) -> dict:
         self.ram_data = ram_data
-        self.columns = columns
-        self.models = {"afiliado": {}, "conyuge": {}, "hijos": []}
+        self.afiliado = {}
 
     def normalize_input(self):
         self.normalize_afiliado()
         self.normalize_conyuge()
         self.normalize_hijos()
-        return self.models
+        return self.afiliado
     
     def add_new_key(self, mapping: dict, models_name: str) -> None:
         """
@@ -43,10 +41,19 @@ class SQLInputNormalizer:
         for key, new_key in mapping.items():
             valor = self.ram_data.get(key, "no_dato")
             if valor != "no_dato":
-                self.models[models_name][new_key] = valor
+                if models_name == "afiliado":
+                    self.afiliado[new_key] = valor
+                else:
+                    self.afiliado[models_name][new_key] = valor
 
 
     def normalize_afiliado(self):
+        """ Normaliza los datos del afiliado.
+        Mapea las claves del afiliado a un formato normalizado.
+        Asegúrate de que las claves coincidan con las de tu hoja de cálculo.
+        """
+        self.afiliado = {}
+        # Mapeo de claves del afiliado
         mapping = {
             "Marca temporal": "marca_temporal_creacion",
             "Apellido/s:": "apellido",
@@ -72,6 +79,9 @@ class SQLInputNormalizer:
         self.add_new_key(mapping, "afiliado")
 
     def normalize_conyuge(self):
+        self.afiliado["conyuge"] = {}
+        # Mapeo de claves del cónyuge
+        # Asegúrate de que las claves coincidan con las de tu hoja de cálculo
         mapping = {
             "Nombre y Apellido ( Conyuge ) :": "nombre_apellido",
             "Fecha de Nacimiento ( Conyuge ) :": "fecha_nacimiento",
@@ -80,6 +90,7 @@ class SQLInputNormalizer:
         self.add_new_key(mapping, "conyuge")
 
     def normalize_hijos(self):
+        self.afiliado["hijos"] = []
         for i in range(1, 8):  # Hijo 1 al 7
             hijo = {
                 "nombre_apellido": self.ram_data.get(
@@ -92,7 +103,7 @@ class SQLInputNormalizer:
             }
             # Solo agregamos si al menos un dato no es 'no_dato'
             if any(v != "no_dato" for v in hijo.values()):
-                self.models["hijos"].append(hijo)
+                self.afiliado["hijos"].append(hijo)
 
             
 

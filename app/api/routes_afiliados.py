@@ -70,3 +70,4 @@ def sync_afiliados():
         "message": "Datos sincronizados correctamente"
         
     }), 200
+

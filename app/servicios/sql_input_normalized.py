@@ -19,7 +19,11 @@ class SQLInputNormalized:
 
     def __init__(self, ram_data: dict) -> dict:
         self.ram_data = ram_data
-        self.afiliado = {}
+        self.afiliado = {
+            "afiliado": {},
+            "conyuge": {},
+            "hijos": []
+        }
 
     def normalize_input(self):
         self.normalize_afiliado()
@@ -41,10 +45,8 @@ class SQLInputNormalized:
         for key, new_key in mapping.items():
             valor = self.ram_data.get(key, "no_dato")
             if valor != "no_dato":
-                if models_name == "afiliado":
-                    self.afiliado[new_key] = valor
-                else:
-                    self.afiliado[models_name][new_key] = valor
+                # Si el valor no es "no_dato", lo agregamos al diccionario
+                self.afiliado[models_name][new_key] = valor
 
 
     def normalize_afiliado(self):
@@ -52,7 +54,6 @@ class SQLInputNormalized:
         Mapea las claves del afiliado a un formato normalizado.
         Asegúrate de que las claves coincidan con las de tu hoja de cálculo.
         """
-        self.afiliado = {}
         # Mapeo de claves del afiliado
         mapping = {
             "Marca temporal": "marca_temporal_creacion",
@@ -79,18 +80,20 @@ class SQLInputNormalized:
         self.add_new_key(mapping, "afiliado")
 
     def normalize_conyuge(self):
-        self.afiliado["conyuge"] = {}
+        """ Normaliza los datos del cónyuge.
+        Mapea las claves del cónyuge a un formato normalizado.
+        Asegúrate de que las claves coincidan con las de tu hoja de cálculo.
+        """
         # Mapeo de claves del cónyuge
         # Asegúrate de que las claves coincidan con las de tu hoja de cálculo
         mapping = {
             "Nombre y Apellido ( Conyuge ) :": "nombre_apellido",
-            "Fecha de Nacimiento ( Conyuge ) :": "fecha_nacimiento",
-            "DNI ( Conyuge ) :": "dni",
+            "Fecha  de Nacimiento ( Conyuge ) :": "fecha_nacimiento",
+            "D.n.i ( Conyuge ) :": "dni",
         }
         self.add_new_key(mapping, "conyuge")
 
     def normalize_hijos(self):
-        self.afiliado["hijos"] = []
         for i in range(1, 8):  # Hijo 1 al 7
             hijo = {
                 "nombre_apellido": self.ram_data.get(

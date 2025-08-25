@@ -1,4 +1,6 @@
 from .. import db
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow import Schema, fields
 
 
 class Afiliado(db.Model):
@@ -59,6 +61,24 @@ class Afiliado(db.Model):
         onupdate=db.func.current_timestamp(),
     )
 
-    # Relaciones con otros modelos
-    conyuges = db.relationship("Conyuge", backref="afiliado", lazy=True)
-    hijos = db.relationship("Hijo", backref="afiliado", lazy=True)
+    # Relaciones (ahora Conyuge e Hijo ya están definidos)
+    conyuges = db.relationship("Conyuge", backref="afiliado", lazy=True, cascade="all, delete-orphan")
+    hijos = db.relationship("Hijo", backref="afiliado", lazy=True, cascade="all, delete-orphan")
+
+
+#schema para serializar y deserializar objetos Afiliado
+class AfiliadoSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Afiliado
+        load_instance = True
+        include_relationships = True
+        sqla_session = db.session
+
+    # Campos adicionales para relaciones
+    fecha_nacimiento = fields.Date(format="%d/%m/%Y")
+    fecha_ingreso = fields.Date(format="%d/%m/%Y")
+    marca_temporal_creacion = fields.DateTime(format="%d/%m/%Y %H:%M:%S")
+    marca_temporal_actualizacion = fields.DateTime(format="%d/%m/%Y %H:%M:%S")
+    # Relaciones
+    conyuges = fields.Nested("ConyugeSchema", many=True)
+    hijos = fields.Nested("HijoSchema", many=True)

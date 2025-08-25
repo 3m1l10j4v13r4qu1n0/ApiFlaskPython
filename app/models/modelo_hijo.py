@@ -1,4 +1,6 @@
 from .. import db
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow import Schema, fields
 
 
 class Hijo(db.Model):
@@ -8,7 +10,7 @@ class Hijo(db.Model):
     """
 
     __tablename__ = "HIJOS"
-    id_hijo = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     id_afiliado = db.Column(
         db.Integer, db.ForeignKey("AFILIADOS.id"), nullable=False
     )
@@ -16,4 +18,13 @@ class Hijo(db.Model):
     fecha_nacimiento = db.Column(db.Date, nullable=False)
     dni = db.Column(db.String(20), nullable=False)
 
-    kits = db.relationship("Kit", backref="hijo", lazy=True)
+# Schema para serialización y deserialización
+class HijoSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Hijo
+        load_instance = True
+        include_fk = True
+    fecha_nacimiento = fields.Date(format="%d/%m/%Y")
+    
+    kits = fields.Nested('KitSchema', many=True)
+

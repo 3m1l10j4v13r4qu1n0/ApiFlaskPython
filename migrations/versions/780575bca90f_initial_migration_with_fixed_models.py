@@ -1,8 +1,8 @@
-"""Agregar modelos afiliado, conyuge, hijo, kit, catalogo_kit
+"""Initial migration with fixed models
 
-Revision ID: 899c0921463e
-Revises: fe60bc976f0e
-Create Date: 2025-08-06 22:28:31.081737
+Revision ID: 780575bca90f
+Revises: 
+Create Date: 2025-08-22 22:48:48.528405
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '899c0921463e'
-down_revision = 'fe60bc976f0e'
+revision = '780575bca90f'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -54,33 +54,37 @@ def upgrade():
     sa.Column('contiene', sa.String(), nullable=False),
     sa.PrimaryKeyConstraint('tipo_kit')
     )
+    op.create_table('user',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('username', sa.String(length=150), nullable=False),
+    sa.Column('password', sa.String(length=200), nullable=False),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('username')
+    )
     op.create_table('CONYUGES',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('id_afiliado', sa.Integer(), nullable=False),
     sa.Column('nombre_apellido', sa.String(length=100), nullable=False),
     sa.Column('fecha_nacimiento', sa.Date(), nullable=False),
     sa.Column('dni', sa.String(length=20), nullable=False),
-    sa.Column('marca_temporal_creacion', sa.DateTime(), nullable=False),
-    sa.Column('marca_temporal_actualizacion', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['id_afiliado'], ['AFILIADOS.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('dni')
     )
     op.create_table('HIJOS',
-    sa.Column('id_hijo', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('id_afiliado', sa.Integer(), nullable=False),
-    sa.Column('apellido', sa.String(), nullable=False),
-    sa.Column('nombre', sa.String(), nullable=False),
+    sa.Column('nombre_apellido', sa.String(length=100), nullable=False),
     sa.Column('fecha_nacimiento', sa.Date(), nullable=False),
-    sa.Column('dni', sa.String(), nullable=False),
+    sa.Column('dni', sa.String(length=20), nullable=False),
     sa.ForeignKeyConstraint(['id_afiliado'], ['AFILIADOS.id'], ),
-    sa.PrimaryKeyConstraint('id_hijo')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('KITS',
     sa.Column('id_kit', sa.Integer(), nullable=False),
     sa.Column('id_hijo', sa.Integer(), nullable=False),
     sa.Column('tipo_kit', sa.String(), nullable=False),
-    sa.ForeignKeyConstraint(['id_hijo'], ['HIJOS.id_hijo'], ),
+    sa.ForeignKeyConstraint(['id_hijo'], ['HIJOS.id'], ),
     sa.ForeignKeyConstraint(['tipo_kit'], ['CATALOGO_KITS.tipo_kit'], ),
     sa.PrimaryKeyConstraint('id_kit')
     )
@@ -92,6 +96,7 @@ def downgrade():
     op.drop_table('KITS')
     op.drop_table('HIJOS')
     op.drop_table('CONYUGES')
+    op.drop_table('user')
     op.drop_table('CATALOGO_KITS')
     op.drop_table('AFILIADOS')
     # ### end Alembic commands ###

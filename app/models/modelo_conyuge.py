@@ -1,5 +1,6 @@
 from .. import db
-
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow import Schema, fields
 
 class Conyuge(db.Model):
     """
@@ -23,13 +24,12 @@ class Conyuge(db.Model):
     )  # Fecha de nacimiento del conyuge
     dni = db.Column(db.String(20), nullable=False, unique=True)  # DNI del conyuge
 
-    # Marca temporal de creación y actualización
-    marca_temporal_creacion = db.Column(
-        db.DateTime, nullable=False, default=db.func.current_timestamp()
-    )
-    marca_temporal_actualizacion = db.Column(
-        db.DateTime,
-        nullable=False,
-        default=db.func.current_timestamp(),
-        onupdate=db.func.current_timestamp(),
-    )
+   
+# Schema para serialización y deserialización
+class ConyugeSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Conyuge
+        load_instance = True
+        include_fk = True
+    fecha_nacimiento = fields.Date(format="%d/%m/%Y")
+    

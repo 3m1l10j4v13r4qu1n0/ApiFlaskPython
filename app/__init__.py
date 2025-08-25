@@ -1,6 +1,7 @@
 #Inicializa la app y extensiones
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
@@ -8,6 +9,8 @@ from flask_wtf.csrf import CSRFProtect
 from config import Config
 
 db = SQLAlchemy()
+ma = Marshmallow()
+
 login_manager = LoginManager()
 migrate = Migrate()
 csrf = CSRFProtect()

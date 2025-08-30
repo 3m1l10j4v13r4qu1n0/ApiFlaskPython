@@ -32,4 +32,5 @@ class ConyugeSchema(SQLAlchemyAutoSchema):
         load_instance = True
         include_fk = True
     fecha_nacimiento = fields.Date(format="%d/%m/%Y")
+    id_afiliado = fields.Int(dump_only=True)  # 👈 no requerido en input JSON
     

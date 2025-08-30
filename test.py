@@ -27,5 +27,5 @@ lista_afiliados = service.get_normalized_data(range_name=RANGE_NAME)
 
 if __name__ == "__main__":
     print("Cargar datos normalizados a la base de datos:")
-    print(lista_afiliados[0]["hijos"])  # Imprimir el primer afiliado normalizado
+    print(lista_afiliados[0]["afiliado"]["estado_civil"])  # Imprimir el primer afiliado normalizado
     

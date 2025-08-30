@@ -24,6 +24,8 @@ class HijoSchema(SQLAlchemyAutoSchema):
         model = Hijo
         load_instance = True
         include_fk = True
+    
+    id_afiliado = fields.Int(dump_only=True)  # 👈 no requerido en input JSON
     fecha_nacimiento = fields.Date(format="%d/%m/%Y")
     
     kits = fields.Nested('KitSchema', many=True)

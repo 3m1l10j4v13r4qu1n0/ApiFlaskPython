@@ -65,7 +65,7 @@ class SQLInputNormalized:
             "Email:": "email",
             "Nacionalidad:": "nacionalidad",
             "Género:": "genero",
-            "Estado Civil:": "estado_civil",
+            "Estado civil:": "estado_civil",
             "Domicilio (Calle y n°):": "direccion",
             "Localidad:": "localidad",
             "Provincia:": "provincia",
